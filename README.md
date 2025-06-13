@@ -1,28 +1,37 @@
-# wsl_path_converter
+# WSL Path Converter
 
 ![Build](https://github.com/Alanxtl/wsl_path_converter/workflows/Build/badge.svg)
-[![Version](https://img.shields.io/jetbrains/plugin/v/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)
-[![Downloads](https://img.shields.io/jetbrains/plugin/d/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)
+[![Version](https://img.shields.io/jetbrains/plugin/v/27636.svg)](https://plugins.jetbrains.com/plugin/27636)
+[![Downloads](https://img.shields.io/jetbrains/plugin/d/27636.svg)](https://plugins.jetbrains.com/plugin/27636)
 
-## Template ToDo list
-- [x] Create a new [IntelliJ Platform Plugin Template][template] project.
-- [ ] Get familiar with the [template documentation][template].
-- [ ] Adjust the [pluginGroup](./gradle.properties) and [pluginName](./gradle.properties), as well as the [id](./src/main/resources/META-INF/plugin.xml) and [sources package](./src/main/kotlin).
-- [ ] Adjust the plugin description in `README` (see [Tips][docs:plugin-description])
-- [ ] Review the [Legal Agreements](https://plugins.jetbrains.com/docs/marketplace/legal-agreements.html?from=IJPluginTemplate).
-- [ ] [Publish a plugin manually](https://plugins.jetbrains.com/docs/intellij/publishing-plugin.html?from=IJPluginTemplate) for the first time.
-- [ ] Set the `MARKETPLACE_ID` in the above README badges. You can obtain it once the plugin is published to JetBrains Marketplace.
-- [ ] Set the [Plugin Signing](https://plugins.jetbrains.com/docs/intellij/plugin-signing.html?from=IJPluginTemplate) related [secrets](https://github.com/JetBrains/intellij-platform-plugin-template#environment-variables).
-- [ ] Set the [Deployment Token](https://plugins.jetbrains.com/docs/marketplace/plugin-upload.html?from=IJPluginTemplate).
-- [ ] Click the <kbd>Watch</kbd> button on the top of the [IntelliJ Platform Plugin Template][template] to be notified about releases containing new features and fixes.
-
+A simple plugin for JetBrains IDEs designed to solve a common pain point when developing with WSL (Windows Subsystem for Linux) on Windows: path conversion.
 <!-- Plugin description -->
-This Fancy IntelliJ Platform Plugin is going to be your implementation of the brilliant ideas that you have.
-
-This specific section is a source for the [plugin.xml](/src/main/resources/META-INF/plugin.xml) file which will be extracted by the [Gradle](/build.gradle.kts) during the build process.
-
-To keep everything working, do not remove `<!-- ... -->` sections. 
+This plugin allows you to copy the WSL-style path of any file in your project with a single click, saving you the hassle of manual conversion.
 <!-- Plugin description end -->
+
+-----
+
+## 🚀 Features
+
+* **One-Click Copy**: Adds a "Copy Path in WSL" option to the "Copy Path/Reference..." menu.
+* **Accurate and Reliable**: Directly calls the `wsl.exe wslpath` command for conversion, ensuring the result is perfectly consistent with your local WSL configuration, including support for custom mount points.
+* **Zero Configuration**: Works out of the box with no additional setup required.
+* **Broad Compatibility**: Supports all major JetBrains IDEs (IntelliJ IDEA, PyCharm, WebStorm, GoLand, Android Studio, etc.).
+
+-----
+
+一个为 JetBrains IDE 设计的简单插件，旨在解决在 Windows 上进行 WSL (Windows Subsystem for Linux) 开发时的一个常见痛点：路径转换。
+
+此插件可以让你一键复制项目中任何文件的 WSL 格式路径，省去手动转换的麻烦。
+
+-----
+
+## 🚀 功能特性
+
+* **一键复制**：在“Copy Path/Reference...”菜单中增加一个 “Copy Path in WSL” 选项。
+* **精准可靠**：直接调用 `wsl.exe wslpath` 命令进行转换，确保结果与您本机的 WSL 配置完全一致，支持自定义挂载点。
+* **零配置**：安装即用，无需任何额外配置。
+* **广泛兼容**：支持所有主流的 JetBrains IDEs (IntelliJ IDEA, PyCharm, WebStorm, GoLand, Android Studio 等)。
 
 ## Installation
 
@@ -49,3 +58,5 @@ Plugin based on the [IntelliJ Platform Plugin Template][template].
 
 [template]: https://github.com/JetBrains/intellij-platform-plugin-template
 [docs:plugin-description]: https://plugins.jetbrains.com/docs/intellij/plugin-user-experience.html#plugin-description-and-presentation
+
+

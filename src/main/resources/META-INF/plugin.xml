@@ -9,7 +9,14 @@
     <resource-bundle>messages.MyBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.github.alanxtl.wslpathconverter.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
-        <postStartupActivity implementation="com.github.alanxtl.wslpathconverter.startup.MyProjectActivity" />
     </extensions>
+
+    <actions>
+        <action id="CopyPathInWSLProvider"
+                class="com.github.alanxtl.wslpathconverter.CopyPathInWSLProvider"
+                icon="AllIcons.RunConfigurations.Wsl"
+                text="WSL Path">
+            <add-to-group group-id="CopyFileReference"/>
+        </action>
+    </actions>
 </idea-plugin>
