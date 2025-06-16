@@ -1,56 +1,50 @@
 package com.github.alanxtl.wslpathconverter
 
+import com.intellij.execution.wsl.WSLDistribution
 import com.intellij.ide.actions.DumbAwareCopyPathProvider
-import com.intellij.openapi.actionSystem.ActionUpdateThread
-import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.vfs.VirtualFile
-import java.io.IOException
-import java.util.concurrent.TimeUnit
+
+
+import com.intellij.execution.wsl.WslDistributionManager
+import kotlin.io.path.Path
+
 
 class CopyPathInWSLProvider : DumbAwareCopyPathProvider() {
 
-    /**
-     * 指定该 Action 的 update 方法在后台线程（BGT）执行，避免阻塞 UI。
-     * 这是 IntelliJ Platform 2022.3 及以后版本推荐的做法。
-     */
-//    override fun getActionUpdateThread(): ActionUpdateThread {
-//        return ActionUpdateThread.BGT
-//    }
-
     override fun getPathToElement(project: Project, virtualFile: VirtualFile?, editor: Editor?): String? {
-        // 首先，确保 virtualFile 存在且当前系统是 Windows
         if (virtualFile == null || !SystemInfo.isWindows) {
             return null
         }
 
-        // 使用 virtualFile.path 获取标准的、系统相关的绝对路径。
-        // 这比 presentableUrl 更适合用于程序处理。
-        val windowsPath = virtualFile.path
+        val presentableUrl = virtualFile.path
+        val path = presentableUrl.substring(0, 2).lowercase() + presentableUrl.substring(2)
 
-        // 调用 wsl.exe 的 wslpath 工具来转换路径。
-        // 会遵循用户自己的 WSL 配置（例如不同的挂载点）。
-        // 命令: wsl wslpath -a 'C:/Users/user/file.txt'
         try {
-            val process = ProcessBuilder("wsl.exe", "wslpath", "-a", windowsPath).start()
-            // 等待命令执行完成，设置一个超时时间（例如 3 秒）
-            if (process.waitFor(3, TimeUnit.SECONDS)) {
-                // 读取命令的输出
-                val wslPath = process.inputStream.bufferedReader().readLine()
-                if (process.exitValue() == 0 && !wslPath.isNullOrBlank()) {
-                    return wslPath
-                }
-            } else {
-                // 如果超时，销毁进程
-                process.destroy()
-            }
-        } catch (e: IOException) {
-//             e.printStackTrace() // 仅用于调试
-        }
+            // 1. 获取用户保存的设置
+            val wslDistributionManager = WslDistributionManager.getInstance()
+            val settings = WslPathSettingsService.instance.state
+            val selectedDistroName = settings.selectedWslDistribution
 
-        // 如果调用 wsl.exe 失败，返回规则转换
-        return "/mnt/" + virtualFile.path.replace("\\", "/").replace(":", "")
+            // 2. 查找用户选择的发行版
+            val targetDistro: WSLDistribution? = if (selectedDistroName.isNotEmpty()) {
+                wslDistributionManager.getOrCreateDistributionByMsId(selectedDistroName)
+            } else {
+                // 3. 如果找不到用户选择的（或用户从未设置过），则回退到默认发行版
+                null
+            }
+
+            // 4. 使用目标发行版进行路径转换
+            return if (targetDistro != null) {
+                targetDistro.getWslPath(Path(virtualFile.path))
+            } else {
+                "/mnt/" + path.replace("\\", "/").replace(":", "")
+            }
+
+        } catch (e: Exception) {
+            return "/mnt/" + path.replace("\\", "/").replace(":", "")
+        }
     }
 }

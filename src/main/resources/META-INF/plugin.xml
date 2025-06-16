@@ -9,6 +9,16 @@
     <resource-bundle>messages.MyBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
+        <copyPathProvider implementation="com.github.alanxtl.wslpathconverter.CopyPathInWSLProvider"/>
+
+        <applicationService
+                serviceImplementation="com.github.alanxtl.wslpathconverter.WslPathSettingsService"/>
+
+        <applicationConfigurable
+                parentId="tools"
+                instance="com.github.alanxtl.wslpathconverter.WslPathConfigurable"
+                id="com.github.alanxtl.wslpathconverter.WslPathConfigurable"
+                displayName="WSL Path Converter"/>
     </extensions>
 
     <actions>
