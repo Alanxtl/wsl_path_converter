@@ -7,7 +7,19 @@
 A simple plugin for JetBrains IDEs designed to solve a common pain point when developing with WSL (Windows Subsystem for Linux) on Windows: path conversion.
 <!-- Plugin description -->
 This plugin allows you to copy the WSL-style path of any file in your project with a single click, saving you the hassle of manual conversion.
+
+Make sure you have put `wsl.exe` in your system variable `PATH`.
+
+此插件可以让你一键复制项目中任何文件的 WSL 格式路径，省去手动转换的麻烦。
+
+请确保 `wsl.exe` 已经被加入到系统 `PATH` 环境变量当中。
 <!-- Plugin description end -->
+
+-----
+
+## Prerequisite
+
+Make sure you have put `wsl.exe` in your system path.
 
 -----
 
