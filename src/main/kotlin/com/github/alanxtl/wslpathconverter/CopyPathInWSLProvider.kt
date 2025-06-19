@@ -19,32 +19,37 @@ class CopyPathInWSLProvider : DumbAwareCopyPathProvider() {
             return null
         }
 
-        val presentableUrl = virtualFile.path
-        val path = presentableUrl.substring(0, 2).lowercase() + presentableUrl.substring(2)
+        val windowsPath = virtualFile.path
+        val wslDistributionManager = WslDistributionManager.getInstance()
 
-        try {
-            // 1. 获取用户保存的设置
-            val wslDistributionManager = WslDistributionManager.getInstance()
-            val settings = WslPathSettingsService.instance.state
-            val selectedDistroName = settings.selectedWslDistribution
+        // 1. 获取用户在设置里选择的发行版
+        val settings = WslPathSettingsService.instance.state
+        val selectedDistroName = settings.selectedWslDistribution
 
-            // 2. 查找用户选择的发行版
-            val targetDistro: WSLDistribution? = if (selectedDistroName.isNotEmpty()) {
-                wslDistributionManager.getOrCreateDistributionByMsId(selectedDistroName)
-            } else {
-                // 3. 如果找不到用户选择的（或用户从未设置过），则回退到默认发行版
-                null
-            }
-
-            // 4. 使用目标发行版进行路径转换
-            return if (targetDistro != null) {
-                targetDistro.getWslPath(Path(virtualFile.path))
-            } else {
-                "/mnt/" + path.replace("\\", "/").replace(":", "")
-            }
-
-        } catch (e: Exception) {
-            return "/mnt/" + path.replace("\\", "/").replace(":", "")
+        var targetDistro: WSLDistribution? = if (selectedDistroName.isNotEmpty()) {
+            wslDistributionManager.getOrCreateDistributionByMsId(selectedDistroName)
+        } else {
+            null
         }
+
+        // 2. 如果用户没有选择，或者选择的发行版找不到了，尝试获取系统默认的发行版
+        if (targetDistro == null) {
+            targetDistro = wslDistributionManager.installedDistributions.firstOrNull()
+        }
+
+        // 3. 如果找到了目标发行版 (用户选择的或默认的)，用它来转换路径
+        if (targetDistro != null) {
+            try {
+                // 使用官方API进行转换，这是最可靠的方式
+                return targetDistro.getWslPath(Path(windowsPath))
+            } catch (e: Exception) {
+                // 如果API转换失败，可以记录日志，然后执行最终回退
+            }
+        }
+
+        // 4. 万不得已的最后回退方案：手动拼接路径
+        val drive = windowsPath.substring(0, 1).lowercase()
+        val restOfPath = windowsPath.substring(3).replace("\\", "/")
+        return "/mnt/$drive/$restOfPath"
     }
 }

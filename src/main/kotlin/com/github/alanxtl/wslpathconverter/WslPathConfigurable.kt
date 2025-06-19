@@ -1,6 +1,8 @@
 package com.github.alanxtl.wslpathconverter
 
 import com.intellij.execution.wsl.ui.WslDistributionComboBox
+import com.intellij.execution.wsl.WslDistributionManager
+
 import com.intellij.openapi.options.Configurable
 import com.intellij.ui.dsl.builder.panel
 import javax.swing.JComponent
@@ -38,6 +40,19 @@ class WslPathConfigurable : Configurable {
         val settings = WslPathSettingsService.instance.state
         // 保存当前选中发行版的ID。
         settings.selectedWslDistribution = wslDistributionComboBox.selected?.msId ?: ""
+    }
+    override fun reset() {
+        val settings = WslPathSettingsService.instance.state
+        val savedDistroName = settings.selectedWslDistribution
+        if (savedDistroName.isNotEmpty()) {
+            // 从 WslDistributionManager 找到对应的发行版对象
+            val distribution = WslDistributionManager.getInstance().getOrCreateDistributionByMsId(savedDistroName)
+            // 在下拉框中选中它
+            wslDistributionComboBox.selected = distribution
+        } else {
+            // 如果没有保存过设置，则不选中任何项或保持默认
+            wslDistributionComboBox.selected = null
+        }
     }
 
 }
