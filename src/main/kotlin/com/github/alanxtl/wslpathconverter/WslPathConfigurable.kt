@@ -1,17 +1,72 @@
 package com.github.alanxtl.wslpathconverter
 
-import com.intellij.execution.wsl.ui.WslDistributionComboBox
+import com.intellij.execution.wsl.WSLDistribution
 import com.intellij.execution.wsl.WslDistributionManager
-
+import com.intellij.execution.wsl.ui.WslDistributionComboBox
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.components.PersistentStateComponent
+import com.intellij.openapi.components.Service
+import com.intellij.openapi.components.State
+import com.intellij.openapi.components.Storage
 import com.intellij.openapi.options.Configurable
 import com.intellij.ui.dsl.builder.panel
 import javax.swing.JComponent
 import javax.swing.JPanel
 
 
+@State(
+    name = "com.github.alanxtl.wslpath.settings.WslCachedDistroService",
+    storages = [Storage("WslPathSettings.xml")]
+)
+@com.intellij.openapi.components.Service(Service.Level.APP)
+class WslCachedDistroService : PersistentStateComponent<WslPathState> {
+
+    private var myState = WslPathState()
+
+    @Volatile
+    private var cachedSelected: WSLDistribution? = null
+    @Volatile
+    private var cachedDefault: WSLDistribution? = null
+
+    override fun getState() = myState
+    override fun loadState(state: WslPathState) {
+        myState = state; invalidate()
+    }
+
+    fun invalidate() {
+        cachedSelected = null; cachedDefault = null
+    }
+
+    fun selectedOrNull(): WSLDistribution? {
+        val id = myState.selectedWslDistribution
+        if (id.isBlank()) return null
+        return cachedSelected ?: run {
+            val d = WslDistributionManager.getInstance().getOrCreateDistributionByMsId(id)
+            cachedSelected = d
+            d
+        }
+    }
+
+    fun defaultOrNull(): WSLDistribution? {
+        return cachedDefault ?: run {
+            // 注意：尽量避免在 UI 线程调用，如果担心阻塞，可不提供默认分发返回
+            val d = WslDistributionManager.getInstance().installedDistributions.firstOrNull()
+            cachedDefault = d
+            d
+        }
+    }
+
+    companion object {
+        val instance: WslCachedDistroService
+            get() = ApplicationManager.getApplication().getService(WslCachedDistroService::class.java)
+    }
+}
+
+
 class WslPathConfigurable : Configurable {
 
     private lateinit var mainPanel: JPanel
+
     // 直接使用官方的 WslDistributionComboBox 组件
     private lateinit var wslDistributionComboBox: WslDistributionComboBox
 
@@ -37,10 +92,12 @@ class WslPathConfigurable : Configurable {
     }
 
     override fun apply() {
-        val settings = WslPathSettingsService.instance.state
-        // 保存当前选中发行版的ID。
-        settings.selectedWslDistribution = wslDistributionComboBox.selected?.msId ?: ""
+        val settingsService = WslPathSettingsService.instance
+        val cached = WslCachedDistroService.instance
+        settingsService.state.selectedWslDistribution = wslDistributionComboBox.selected?.msId ?: ""
+        cached.loadState(settingsService.state) // 或者直接 cached.invalidate()
     }
+
     override fun reset() {
         val settings = WslPathSettingsService.instance.state
         val savedDistroName = settings.selectedWslDistribution

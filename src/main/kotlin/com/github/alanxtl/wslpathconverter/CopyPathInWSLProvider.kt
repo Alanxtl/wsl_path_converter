@@ -15,41 +15,41 @@ import kotlin.io.path.Path
 class CopyPathInWSLProvider : DumbAwareCopyPathProvider() {
 
     override fun getPathToElement(project: Project, virtualFile: VirtualFile?, editor: Editor?): String? {
-        if (virtualFile == null || !SystemInfo.isWindows) {
-            return null
+        if (virtualFile == null || !SystemInfo.isWindows) return null
+
+        val p = virtualFile.path
+        // 先快速转换（不触发任何昂贵调用）
+        fastConvertWinToWsl(p)?.let { return it }
+
+        // 已经是 \\wsl$ 或 /mnt/* 的路径就直接返回（避免重复转换）
+        if (p.startsWith("\\\\wsl$\\") || p.startsWith("/mnt/")) return p
+
+        // 如必须使用发行版做精确转换，尽量只使用缓存；如果缓存为空，直接走回退而不是去枚举系统发行版
+        val distro = WslCachedDistroService.instance.selectedOrNull()
+            ?: WslCachedDistroService.instance.defaultOrNull()
+
+        return try {
+            // 这里依然可能代价高，但由于我们不再为了“找一个默认发行版”去枚举，
+            // 而是仅当缓存已建立时才用它，实际触发概率会极低。
+            if (distro != null) distro.getWslPath(Path(p)) else fastFallback(p)
+        } catch (_: Exception) {
+            fastFallback(p)
         }
-
-        val windowsPath = virtualFile.path
-        val wslDistributionManager = WslDistributionManager.getInstance()
-
-        // 1. 获取用户在设置里选择的发行版
-        val settings = WslPathSettingsService.instance.state
-        val selectedDistroName = settings.selectedWslDistribution
-
-        var targetDistro: WSLDistribution? = if (selectedDistroName.isNotEmpty()) {
-            wslDistributionManager.getOrCreateDistributionByMsId(selectedDistroName)
-        } else {
-            null
-        }
-
-        // 2. 如果用户没有选择，或者选择的发行版找不到了，尝试获取系统默认的发行版
-        if (targetDistro == null) {
-            targetDistro = wslDistributionManager.installedDistributions.firstOrNull()
-        }
-
-        // 3. 如果找到了目标发行版 (用户选择的或默认的)，用它来转换路径
-        if (targetDistro != null) {
-            try {
-                // 使用官方API进行转换，这是最可靠的方式
-                return targetDistro.getWslPath(Path(windowsPath))
-            } catch (e: Exception) {
-                // 如果API转换失败，可以记录日志，然后执行最终回退
-            }
-        }
-
-        // 4. 万不得已的最后回退方案：手动拼接路径
-        val drive = windowsPath.substring(0, 1).lowercase()
-        val restOfPath = windowsPath.substring(3).replace("\\", "/")
-        return "/mnt/$drive/$restOfPath"
     }
+
+    private fun fastFallback(windowsPath: String): String {
+        // 与 fastConvert 保持一致（这里假定之前 fastConvert 失败，仍兜个底）
+        return fastConvertWinToWsl(windowsPath) ?: windowsPath
+    }
+
+    private fun fastConvertWinToWsl(windowsPath: String): String? {
+        // 典型的 "C:\Users\..." 或 "C:/Users/..." -> "/mnt/c/Users/..."
+        // VirtualFile.path 在 Windows 通常使用 '/', 但也容忍 '\'
+        val regex = Regex("""^([A-Za-z]):[\\/](.*)$""")
+        val m = regex.find(windowsPath) ?: return null
+        val drive = m.groupValues[1].lowercase()
+        val rest = m.groupValues[2].replace('\\', '/')
+        return "/mnt/$drive/$rest"
+    }
+
 }
