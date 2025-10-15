@@ -1,14 +1,11 @@
 package com.github.alanxtl.wslpathconverter
 
-import com.intellij.execution.wsl.WSLDistribution
+
 import com.intellij.ide.actions.DumbAwareCopyPathProvider
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.vfs.VirtualFile
-
-
-import com.intellij.execution.wsl.WslDistributionManager
 import kotlin.io.path.Path
 
 

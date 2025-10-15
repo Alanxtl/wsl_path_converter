@@ -25,6 +25,7 @@ class WslCachedDistroService : PersistentStateComponent<WslPathState> {
 
     @Volatile
     private var cachedSelected: WSLDistribution? = null
+
     @Volatile
     private var cachedDefault: WSLDistribution? = null
 
