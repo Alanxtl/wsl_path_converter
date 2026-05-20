@@ -10,9 +10,13 @@ Report issues on the [GitHub repository](https://github.com/Alanxtl/wsl_path_con
 
 This plugin allows you to copy the WSL-style path of any file in your project with a single click, saving you the hassle of manual conversion.
 
+You can also customize the WSL mount root used by fast conversion, such as `/mnt`, `/`, or `/wsl`, to match your own WSL path layout without calling WSL for every copy action.
+
 Make sure you have put `wsl.exe` in your system variable `PATH`.
 
 此插件可以让你一键复制项目中任何文件的 WSL 格式路径，省去手动转换的麻烦。
+
+你也可以自定义快速转换使用的 WSL 挂载根路径，例如 `/mnt`、`/` 或 `/wsl`，以适配自己的 WSL 路径布局，无需每次复制都调用 WSL。
 
 请确保 `wsl.exe` 已经被加入到系统 `PATH` 环境变量当中。
 <!-- Plugin description end -->

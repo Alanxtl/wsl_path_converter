@@ -19,6 +19,9 @@
                 instance="com.github.alanxtl.wslpathconverter.WslPathConfigurable"
                 id="com.github.alanxtl.wslpathconverter.WslPathConfigurable"
                 displayName="WSL Path Converter"/>
+
+        <notificationGroup id="WSL Path Converter"
+                           displayType="BALLOON"/>
     </extensions>
 
     <actions>

@@ -4,24 +4,16 @@ import com.intellij.execution.wsl.WSLDistribution
 import com.intellij.execution.wsl.WslDistributionManager
 import com.intellij.execution.wsl.ui.WslDistributionComboBox
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.Service
-import com.intellij.openapi.components.State
-import com.intellij.openapi.components.Storage
 import com.intellij.openapi.options.Configurable
 import com.intellij.ui.dsl.builder.panel
+import com.intellij.ui.components.JBTextField
 import javax.swing.JComponent
 import javax.swing.JPanel
 
 
-@State(
-    name = "com.github.alanxtl.wslpath.settings.WslCachedDistroService",
-    storages = [Storage("WslPathSettings.xml")]
-)
 @com.intellij.openapi.components.Service(Service.Level.APP)
-class WslCachedDistroService : PersistentStateComponent<WslPathState> {
-
-    private var myState = WslPathState()
+class WslCachedDistroService {
 
     @Volatile
     private var cachedSelected: WSLDistribution? = null
@@ -29,17 +21,12 @@ class WslCachedDistroService : PersistentStateComponent<WslPathState> {
     @Volatile
     private var cachedDefault: WSLDistribution? = null
 
-    override fun getState() = myState
-    override fun loadState(state: WslPathState) {
-        myState = state; invalidate()
-    }
-
     fun invalidate() {
         cachedSelected = null; cachedDefault = null
     }
 
     fun selectedOrNull(): WSLDistribution? {
-        val id = myState.selectedWslDistribution
+        val id = WslPathSettingsService.instance.state.selectedWslDistribution
         if (id.isBlank()) return null
         return cachedSelected ?: run {
             val d = WslDistributionManager.getInstance().getOrCreateDistributionByMsId(id)
@@ -70,16 +57,24 @@ class WslPathConfigurable : Configurable {
 
     // 直接使用官方的 WslDistributionComboBox 组件
     private lateinit var wslDistributionComboBox: WslDistributionComboBox
+    private lateinit var mountRootTextField: JBTextField
 
-    override fun getDisplayName(): String = "WSL Path Converter Settings"
+    override fun getDisplayName(): String = MyBundle.message("settings.displayName")
 
     override fun createComponent(): JComponent {
         // 初始化官方组件，它会自己处理所有加载逻辑
         wslDistributionComboBox = WslDistributionComboBox(null, true)
+        mountRootTextField = JBTextField()
 
         mainPanel = panel {
-            row("Select WSL Distribution:") {
+            row(MyBundle.message("settings.wslDistribution.label")) {
                 cell(wslDistributionComboBox)
+            }
+            row(MyBundle.message("settings.mountRoot.label")) {
+                cell(mountRootTextField)
+            }
+            row {
+                comment(MyBundle.message("settings.mountRoot.examples"))
             }
         }
         return mainPanel
@@ -89,19 +84,23 @@ class WslPathConfigurable : Configurable {
         val settings = WslPathSettingsService.instance.state
         // 从组件获取当前选中的发行版，然后获取其ID。注意处理null的情况。
         val selectedId = wslDistributionComboBox.selected?.msId ?: ""
-        return selectedId != settings.selectedWslDistribution
+        val mountRoot = WslPathConverter.normalizeMountRoot(mountRootTextField.text)
+        return selectedId != settings.selectedWslDistribution || mountRoot != settings.mountRoot
     }
 
     override fun apply() {
         val settingsService = WslPathSettingsService.instance
         val cached = WslCachedDistroService.instance
         settingsService.state.selectedWslDistribution = wslDistributionComboBox.selected?.msId ?: ""
-        cached.loadState(settingsService.state) // 或者直接 cached.invalidate()
+        settingsService.state.mountRoot = WslPathConverter.normalizeMountRoot(mountRootTextField.text)
+        mountRootTextField.text = settingsService.state.mountRoot
+        cached.invalidate()
     }
 
     override fun reset() {
         val settings = WslPathSettingsService.instance.state
         val savedDistroName = settings.selectedWslDistribution
+        mountRootTextField.text = WslPathConverter.normalizeMountRoot(settings.mountRoot)
         if (savedDistroName.isNotEmpty()) {
             // 从 WslDistributionManager 找到对应的发行版对象
             val distribution = WslDistributionManager.getInstance().getOrCreateDistributionByMsId(savedDistroName)

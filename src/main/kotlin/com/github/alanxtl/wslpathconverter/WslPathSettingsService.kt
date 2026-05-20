@@ -7,7 +7,8 @@ import com.intellij.openapi.components.Storage
 
 // 定义需要存储的数据结构
 data class WslPathState(
-    var selectedWslDistribution: String = "" // 存储用户选择的WSL发行版名称
+    var selectedWslDistribution: String = "", // 存储用户选择的WSL发行版名称
+    var mountRoot: String = "/mnt",
 )
 
 // 使用@State注解来定义存储的位置和名称

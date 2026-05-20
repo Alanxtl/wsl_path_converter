@@ -2,6 +2,13 @@
 
 # wsl_path_converter Changelog
 
-## [Unreleased]
+## [0.3.0]
 ### Added
-- Initial scaffold created from [IntelliJ Platform Plugin Template](https://github.com/JetBrains/intellij-platform-plugin-template)
+- Add configurable WSL mount root for fast path conversion.
+- Add settings-page examples for `/mnt`, `/`, and `/wsl` mount roots.
+- Add pure Kotlin path conversion tests for custom mount roots.
+
+### Changed
+- Update IntelliJ Platform template dependencies and Gradle wrapper.
+- Refactor WSL path conversion into a dedicated converter component.
+- Keep WSL distribution caching separate from persisted settings.

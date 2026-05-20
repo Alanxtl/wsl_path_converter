@@ -2,49 +2,49 @@
 
 ## High Priority
 
-1. Extract path conversion into a small pure Kotlin component.
+1. Extract path conversion into a small pure Kotlin component. **Done**
    - Current behavior lives inside `CopyPathInWSLProvider`.
    - Extraction would let CI test conversion on Linux, Windows, and macOS without IntelliJ test fixtures.
 
-2. Align README promises with implementation.
+2. Align README promises with implementation. **Deferred**
    - README says conversion directly calls `wsl.exe wslpath`.
    - Current implementation uses fast `/mnt/<drive>` conversion for normal drive-letter paths and only uses IntelliJ WSL APIs for fallback cases.
 
-3. Decide how to support custom WSL automount roots.
+3. Decide how to support custom WSL automount roots. **Deferred**
    - Fast conversion assumes `/mnt/c/...`.
    - Users with `/etc/wsl.conf` automount root customizations may receive incorrect paths.
 
-4. Reduce settings-service duplication.
+4. Reduce settings-service duplication. **Done**
    - `WslPathSettingsService` and `WslCachedDistroService` both persist `WslPathState` into `WslPathSettings.xml`.
    - A cleaner boundary would keep persistence in one service and cache only runtime distribution objects.
 
 ## Medium Priority
 
-1. Make non-Windows behavior explicit.
+1. Make non-Windows behavior explicit. **Done**
    - The provider currently returns `null` outside Windows.
    - Document whether the action should be hidden, disabled, or simply unavailable on non-Windows systems.
 
-2. Add integration-style tests for selected WSL distribution behavior.
+2. Add integration-style tests for selected WSL distribution behavior. **Done**
    - Current tests cover fast path conversion and passthrough paths.
    - They do not validate `WslCachedDistroService` interactions or distribution selection.
 
-3. Improve user-facing error handling.
+3. Improve user-facing error handling. **Done**
    - If conversion falls back to the original path, the user gets no signal.
    - Consider a notification only for cases where conversion clearly failed.
 
-4. Keep marketplace documentation synchronized with the plugin record.
+4. Keep marketplace documentation synchronized with the plugin record. **Done**
    - Installation links now point at plugin id `27636`.
    - Future releases should keep README links, badges, and marketplace metadata in sync.
 
 ## Lower Priority
 
-1. Add localization keys for settings labels.
+1. Add localization keys for settings labels. **Done**
    - `messages/MyBundle.properties` exists, but UI labels are hard-coded.
 
-2. Add a small screenshot or GIF to README.
+2. Add a small screenshot or GIF to README. **Deferred**
    - This would help users understand where the new menu item appears.
 
-3. Consider a configurable conversion mode.
+3. Consider a configurable conversion mode. **Deferred**
    - Fast mode: `/mnt/<drive>` string conversion.
    - Accurate mode: IntelliJ WSL API / `wslpath` conversion.
    - Automatic mode: fast for normal paths, accurate when a selected distribution is configured.
