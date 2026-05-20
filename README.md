@@ -6,6 +6,8 @@
 
 A simple plugin for JetBrains IDEs designed to solve a common pain point when developing with WSL (Windows Subsystem for Linux) on Windows: path conversion.
 <!-- Plugin description -->
+Report issues on the [GitHub repository](https://github.com/Alanxtl/wsl_path_converter).
+
 This plugin allows you to copy the WSL-style path of any file in your project with a single click, saving you the hassle of manual conversion.
 
 Make sure you have put `wsl.exe` in your system variable `PATH`.
@@ -54,9 +56,9 @@ Make sure you have put `wsl.exe` in your system path.
   
 - Using JetBrains Marketplace:
 
-  Go to [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID) and install it by clicking the <kbd>Install to ...</kbd> button in case your IDE is running.
+  Go to [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/27636) and install it by clicking the <kbd>Install to ...</kbd> button in case your IDE is running.
 
-  You can also download the [latest release](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID/versions) from JetBrains Marketplace and install it manually using
+  You can also download the [latest release](https://plugins.jetbrains.com/plugin/27636/versions) from JetBrains Marketplace and install it manually using
   <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
 
 - Manually:
