@@ -1,7 +1,7 @@
 [versions]
 # libraries
 junit = "4.13.2"
-junitJupiter = "6.0.3"
+junitJupiter = "6.1.0"
 mockito = "5.23.0"
 mockitoInline = "5.2.0"
 mockitoKotlin = "6.1.0"
