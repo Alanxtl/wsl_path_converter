@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [0.3.1]
+
+### Changed
+
+- Re-release configurable WSL mount root support for JetBrains Marketplace.
+
 ## [0.3.0]
 
 ### Added
@@ -18,5 +24,6 @@
 - Refactor WSL path conversion into a dedicated converter component.
 - Keep WSL distribution caching separate from persisted settings.
 
-[Unreleased]: https://github.com/Alanxtl/wsl_path_converter/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/Alanxtl/wsl_path_converter/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/Alanxtl/wsl_path_converter/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/Alanxtl/wsl_path_converter/commits/v0.3.0
